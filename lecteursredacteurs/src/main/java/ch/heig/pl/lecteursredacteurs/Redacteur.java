@@ -14,7 +14,7 @@ public class Redacteur implements Runnable{
     public void startWrite() {
         new Thread(this).start();
         synchronized (this) {
-            while (this.controleur.isWrited()) {
+            while (this.controleur.isWritable()) {
                 try {
                     this.wait();
                     this.waiting = true;
@@ -34,7 +34,5 @@ public class Redacteur implements Runnable{
         }
     }
 
-    public void run() {
-        this.waiting = false;
-    }
+    public void run() {}
 }
