@@ -3,36 +3,32 @@ package ch.heig.pl.lecteursredacteurs;
 public class Redacteur implements Runnable{
     private Controleur controleur;
     private boolean waiting;
+    private Thread thread;
+
     public Redacteur(Controleur controleur) {
         this.controleur = controleur;
+        this.thread = new Thread(this);
     }
 
     public boolean isWaiting() {
         return this.waiting;
     }
 
+    private synchronized void setWaiting(boolean value) {
+        this.waiting = value;
+    }
+
     public void startWrite() {
-        new Thread(this).start();
-        synchronized (this) {
-            while (this.controleur.isWritable()) {
-                try {
-                    this.wait();
-                    this.waiting = true;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        this.waiting = false;
-        this.controleur.startWriting();
+        this.thread.start();
     }
 
     public void stopWrite() {
-        synchronized (this) {
-            this.controleur.stopWriting();
-            this.notifyAll();
-        }
+        this.controleur.stopWriting(this);
     }
 
-    public void run() {}
+    public void run() {
+        this.setWaiting(true);
+        this.controleur.startWriting(this);
+        this.setWaiting(false);
+    }
 }

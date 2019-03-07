@@ -1,38 +1,56 @@
 package ch.heig.pl.lecteursredacteurs;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Controleur {
-    private boolean writed;
-    private Set<Object> readed;
-
-    public Controleur(){
-        this.writed = false;
-        this.readed = new HashSet<Object>();
-    }
+    private Object writer = null;
+    private Set<Object> readers = new HashSet<Object>();
+    private Queue<Object> waitingWriters = new PriorityQueue<Object>();
+    private Queue<Object> waitingReaders = new PriorityQueue<Object>();
 
     public boolean isWritable() {
-        return !this.writed && this.readed.isEmpty();
-    }
-
-    public void startWriting() {
-        this.writed = true;
-    }
-
-    public void stopWriting() {
-        this.writed = false;
+        return this.writer == null && this.readers.isEmpty();
     }
 
     public boolean isReadable() {
-        return !this.writed;
+        return this.writer == null && waitingWriters.isEmpty();
     }
 
-    public void startReading(Object o) {
-        this.readed.add(o);
+    public synchronized void startWriting(Object o) {
+        this.waitingWriters.add(o);
+        while (!this.isWritable() || !this.waitingWriters.peek().equals(o)) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        this.writer = this.waitingWriters.poll();
     }
 
-    public void stopReading(Object o) {
-        this.readed.remove(o);
+    public synchronized void stopWriting(Object o) {
+        if(this.writer == o) {
+            this.writer = false;
+        }
+        this.notifyAll();
+    }
+
+    public synchronized void startReading(Object o) {
+        this.waitingReaders.add(o);
+        while (!this.isReadable() || !this.waitingReaders.peek().equals(o))
+        {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.getStackTrace();
+            }
+        }
+        this.readers.add(this.waitingReaders.poll());
+        this.notifyAll();
+    }
+
+    public synchronized void stopReading(Object o) {
+        this.readers.remove(o);
+        this.notifyAll();
     }
 }

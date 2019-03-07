@@ -2,38 +2,29 @@ package ch.heig.pl.lecteursredacteurs;
 
 public class Lecteur implements Runnable{
     private Controleur controleur;
-    private boolean waiting;
+    private Boolean waiting;
+    private Thread thread;
 
     public Lecteur(Controleur controleur) {
         this.controleur = controleur;
+        this.thread = new Thread(this);
     }
 
-    public boolean isWaiting() {
+    public synchronized boolean isWaiting() {
         return this.waiting;
     }
 
     public void startRead() {
-        new Thread(this).start();
-        synchronized (this) {
-            while (this.controleur.isReadable()) {
-                try {
-                    this.wait();
-                    this.waiting = true;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        this.waiting = false;
-        this.controleur.startReading(this);
+        this.thread.start();
     }
 
     public void stopRead() {
-        synchronized (this) {
-            this.controleur.stopReading(this);
-            this.notifyAll();
-        }
+        this.controleur.stopReading(this);
     }
 
-    public void run() {}
+    public void run() {
+        this.waiting = true;
+        this.controleur.startReading(this);
+        this.waiting = false;
+    }
 }
