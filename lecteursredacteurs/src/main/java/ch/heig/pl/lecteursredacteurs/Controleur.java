@@ -9,20 +9,39 @@ public class Controleur
     private Queue<Redacteur> waitingWriters = new LinkedList<>();
     private Queue<Lecteur> waitingReaders = new LinkedList<>();
 
-    public boolean isWritable() {
+    public boolean isWritable()
+    {
         return this.writer == null && this.readers.isEmpty();
     }
 
-    public boolean isReadable() {
+    public boolean isReadable()
+    {
         return this.writer == null && waitingWriters.isEmpty();
     }
 
-    synchronized void startWriting(Redacteur writer) {
+    boolean isWriterWaiting(Redacteur writer)
+    {
+        return waitingWriters.contains(writer);
+    }
+
+    boolean isReaderWaiting(Lecteur lecteur)
+    {
+        return waitingReaders.contains(lecteur);
+    }
+
+    synchronized void startWriting(Redacteur writer)
+    {
         this.waitingWriters.add(writer);
+
+        synchronized (writer)
+        {
+            writer.notify();
+        }
 
         while (!this.isWritable() || this.waitingWriters.peek() != writer)
         {
-            try {
+            try
+            {
                 this.wait();
             }
             catch (InterruptedException ignored) { }
@@ -31,19 +50,29 @@ public class Controleur
         this.writer = this.waitingWriters.poll();
     }
 
-    synchronized void stopWriting(Redacteur writer) {
-        if (this.writer == writer) {
+    synchronized void stopWriting(Redacteur writer)
+    {
+        if (this.writer == writer)
+        {
             this.writer = null;
         }
+
         this.notifyAll();
     }
 
-    synchronized void startReading(Lecteur reader) {
+    synchronized void startReading(Lecteur reader)
+    {
         this.waitingReaders.add(reader);
+
+        synchronized (reader)
+        {
+            reader.notify();
+        }
 
         while (!this.isReadable() || this.waitingReaders.peek() != reader)
         {
-            try {
+            try
+            {
                 this.wait();
             }
             catch (InterruptedException ignored) { }
@@ -53,7 +82,8 @@ public class Controleur
         this.notifyAll();
     }
 
-    synchronized void stopReading(Lecteur reader) {
+    synchronized void stopReading(Lecteur reader)
+    {
         this.readers.remove(reader);
         this.notifyAll();
     }
