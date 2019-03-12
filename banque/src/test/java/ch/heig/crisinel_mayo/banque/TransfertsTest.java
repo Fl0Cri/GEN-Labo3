@@ -12,13 +12,13 @@ class TransfertsTest
     {
         Banque banque = new Banque(10);
 
-        for (int i = 0; i < 5000; i++)
+        for (int i = 0; i < 10000; i++)
         {
             Transferts transfert = new Transferts(banque, 1000);
             transfert.start();
 
             try {
-                Thread.sleep(3);
+                Thread.sleep(2);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
