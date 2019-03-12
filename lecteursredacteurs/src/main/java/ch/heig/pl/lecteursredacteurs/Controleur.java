@@ -5,8 +5,8 @@ import java.util.*;
 public class Controleur {
     private Redacteur writer = null;
     private Set<Lecteur> readers = new HashSet<>();
-    private Queue<Redacteur> waitingWriters = new PriorityQueue<>();
-    private Queue<Lecteur> waitingReaders = new PriorityQueue<>();
+    private Queue<Redacteur> waitingWriters = new LinkedList<>();
+    private Queue<Lecteur> waitingReaders = new LinkedList<>();
 
     public boolean isWritable() {
         return this.writer == null && this.readers.isEmpty();
@@ -18,7 +18,7 @@ public class Controleur {
 
     public synchronized void startWriting(Redacteur writer) {
         this.waitingWriters.add(writer);
-        while (!this.isWritable() || !this.waitingWriters.peek().equals(writer)) {
+        while (!this.isWritable() || this.waitingWriters.peek() != writer) {
             try {
                 this.wait();
             } catch (InterruptedException e) {
@@ -37,7 +37,7 @@ public class Controleur {
 
     public synchronized void startReading(Lecteur reader) {
         this.waitingReaders.add(reader);
-        while (!this.isReadable() || !this.waitingReaders.peek().equals(reader))
+        while (!this.isReadable() || this.waitingReaders.peek() != reader)
         {
             try {
                 this.wait();
