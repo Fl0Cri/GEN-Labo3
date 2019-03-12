@@ -2,7 +2,8 @@ package ch.heig.pl.lecteursredacteurs;
 
 import java.util.*;
 
-public class Controleur {
+public class Controleur
+{
     private Redacteur writer = null;
     private Set<Lecteur> readers = new HashSet<>();
     private Queue<Redacteur> waitingWriters = new LinkedList<>();
@@ -16,40 +17,43 @@ public class Controleur {
         return this.writer == null && waitingWriters.isEmpty();
     }
 
-    public synchronized void startWriting(Redacteur writer) {
+    synchronized void startWriting(Redacteur writer) {
         this.waitingWriters.add(writer);
-        while (!this.isWritable() || this.waitingWriters.peek() != writer) {
+
+        while (!this.isWritable() || this.waitingWriters.peek() != writer)
+        {
             try {
                 this.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+            catch (InterruptedException ignored) { }
         }
+
         this.writer = this.waitingWriters.poll();
     }
 
-    public synchronized void stopWriting(Redacteur writer) {
-        if(this.writer == writer) {
+    synchronized void stopWriting(Redacteur writer) {
+        if (this.writer == writer) {
             this.writer = null;
         }
         this.notifyAll();
     }
 
-    public synchronized void startReading(Lecteur reader) {
+    synchronized void startReading(Lecteur reader) {
         this.waitingReaders.add(reader);
+
         while (!this.isReadable() || this.waitingReaders.peek() != reader)
         {
             try {
                 this.wait();
-            } catch (InterruptedException e) {
-                e.getStackTrace();
             }
+            catch (InterruptedException ignored) { }
         }
+
         this.readers.add(this.waitingReaders.poll());
         this.notifyAll();
     }
 
-    public synchronized void stopReading(Lecteur reader) {
+    synchronized void stopReading(Lecteur reader) {
         this.readers.remove(reader);
         this.notifyAll();
     }
