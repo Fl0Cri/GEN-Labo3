@@ -20,7 +20,8 @@ Thumbs.db
 *.ilk
 *.log
 [Bb]in
-[Dd]ebug*/
+[Dd]bug*/
+
 *.lib
 *.sbr
 obj/
@@ -28,7 +29,14 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 .vs/
+
 #Nuget packages folder
 packages/
 .idea
 /*.zip
+
+#IntelliJ
+*.iml
+
+# Compiled output
+*/target/*
