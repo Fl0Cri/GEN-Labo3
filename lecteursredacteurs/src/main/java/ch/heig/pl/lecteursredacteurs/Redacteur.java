@@ -25,6 +25,7 @@ public class Redacteur
     public synchronized void stopWrite() throws InterruptedException
     {
         this.controleur.stopWriting(this);
+        this.thread.join();
     }
 
     private class WriteSession implements Runnable

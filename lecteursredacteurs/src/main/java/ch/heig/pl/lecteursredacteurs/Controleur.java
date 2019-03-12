@@ -38,16 +38,7 @@ public class Controleur
             writer.notify();
         }
 
-        while (!this.isWritable() || this.waitingWriters.peek() != writer)
-        {
-            try
-            {
-                this.wait();
-            }
-            catch (InterruptedException ignored) { }
-        }
-
-        this.writer = this.waitingWriters.poll();
+        this.tick();
     }
 
     synchronized void stopWriting(Redacteur writer)
@@ -57,7 +48,7 @@ public class Controleur
             this.writer = null;
         }
 
-        this.notifyAll();
+        this.tick();
     }
 
     synchronized void startReading(Lecteur reader)
@@ -69,22 +60,37 @@ public class Controleur
             reader.notify();
         }
 
-        while (!this.isReadable() || this.waitingReaders.peek() != reader)
-        {
-            try
-            {
-                this.wait();
-            }
-            catch (InterruptedException ignored) { }
-        }
-
-        this.readers.add(this.waitingReaders.poll());
-        this.notifyAll();
+        this.tick();
     }
 
     synchronized void stopReading(Lecteur reader)
     {
         this.readers.remove(reader);
-        this.notifyAll();
+        this.tick();
+    }
+
+    private synchronized void tick()
+    {
+        if (this.writer != null)
+        {
+            return;
+        }
+
+        if (!this.waitingWriters.isEmpty())
+        {
+            if (this.isWritable())
+            {
+                this.writer = this.waitingWriters.poll();
+                this.notifyAll();
+            }
+        }
+        else
+        {
+            while (!this.waitingReaders.isEmpty())
+            {
+                this.readers.add(this.waitingReaders.poll());
+            }
+            this.notifyAll();
+        }
     }
 }

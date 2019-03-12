@@ -25,6 +25,7 @@ public class Lecteur
     public synchronized void stopRead() throws InterruptedException
     {
         this.controleur.stopReading(this);
+        this.thread.join();
     }
 
     private class ReadSession implements Runnable
