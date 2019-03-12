@@ -10,7 +10,7 @@ public class Transferts implements Runnable
 
     public static void executeRandom(Banque banque, int nombre)
     {
-        System.out.println("### Starting transfers");
+        System.out.println("############################## Starting transfers");
 
         // Démare les transferts
         for (int i = 0; i < nombre; i++)
@@ -18,7 +18,7 @@ public class Transferts implements Runnable
             new Thread(new Transferts(banque)).start();
         }
 
-        System.out.println("### Finished");
+        System.out.println("############################## Finished");
     }
 
     private Transferts(Banque banque)
@@ -31,11 +31,16 @@ public class Transferts implements Runnable
     {
         int nbComptes = banque.getNbComptes();
         int crediteur = randomGenerator.nextInt(nbComptes);
-        int debiteur = randomGenerator.nextInt(nbComptes);
+        int debiteur = randomGenerator.nextInt(nbComptes - 1);
+        debiteur = debiteur >= crediteur ? debiteur + 1 : debiteur;
         int montant = randomGenerator.nextInt(4) + 1;
 
-        System.out.println("Transfering " + montant + " from " + crediteur + " to " + debiteur);
+        try {
+            Thread.sleep(randomGenerator.nextInt(10));
+        } catch (InterruptedException ignored) {
+        }
 
+        System.out.println("Transferring " + montant + " from " + crediteur + " to " + debiteur);
         banque.transfert(debiteur, crediteur, montant);
     }
 }
