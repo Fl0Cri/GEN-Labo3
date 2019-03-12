@@ -5,9 +5,9 @@ import java.util.*;
 public class Controleur
 {
     private Redacteur writer = null;
-    private Set<Lecteur> readers = new HashSet<>();
-    private Queue<Redacteur> waitingWriters = new LinkedList<>();
-    private Queue<Lecteur> waitingReaders = new LinkedList<>();
+    private Set<Lecteur> readers = new HashSet<Lecteur>();
+    private Queue<Redacteur> waitingWriters = new LinkedList<Redacteur>();
+    private Queue<Lecteur> waitingReaders = new LinkedList<Lecteur>();
 
     public boolean isWritable()
     {
