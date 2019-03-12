@@ -1,6 +1,7 @@
 package ch.heig.pl.lecteursredacteurs;
 
-public class Lecteur implements Runnable{
+public class Lecteur implements Runnable
+{
     private Controleur controleur;
     private Boolean waiting;
     private Thread thread;

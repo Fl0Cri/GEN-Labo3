@@ -3,10 +3,10 @@ package ch.heig.pl.lecteursredacteurs;
 import java.util.*;
 
 public class Controleur {
-    private Object writer = null;
-    private Set<Object> readers = new HashSet<Object>();
-    private Queue<Object> waitingWriters = new PriorityQueue<Object>();
-    private Queue<Object> waitingReaders = new PriorityQueue<Object>();
+    private Redacteur writer = null;
+    private Set<Lecteur> readers = new HashSet<>();
+    private Queue<Redacteur> waitingWriters = new PriorityQueue<>();
+    private Queue<Lecteur> waitingReaders = new PriorityQueue<>();
 
     public boolean isWritable() {
         return this.writer == null && this.readers.isEmpty();
@@ -16,9 +16,9 @@ public class Controleur {
         return this.writer == null && waitingWriters.isEmpty();
     }
 
-    public synchronized void startWriting(Object o) {
-        this.waitingWriters.add(o);
-        while (!this.isWritable() || !this.waitingWriters.peek().equals(o)) {
+    public synchronized void startWriting(Redacteur writer) {
+        this.waitingWriters.add(writer);
+        while (!this.isWritable() || !this.waitingWriters.peek().equals(writer)) {
             try {
                 this.wait();
             } catch (InterruptedException e) {
@@ -28,16 +28,16 @@ public class Controleur {
         this.writer = this.waitingWriters.poll();
     }
 
-    public synchronized void stopWriting(Object o) {
-        if(this.writer == o) {
-            this.writer = false;
+    public synchronized void stopWriting(Redacteur writer) {
+        if(this.writer == writer) {
+            this.writer = null;
         }
         this.notifyAll();
     }
 
-    public synchronized void startReading(Object o) {
-        this.waitingReaders.add(o);
-        while (!this.isReadable() || !this.waitingReaders.peek().equals(o))
+    public synchronized void startReading(Lecteur reader) {
+        this.waitingReaders.add(reader);
+        while (!this.isReadable() || !this.waitingReaders.peek().equals(reader))
         {
             try {
                 this.wait();
@@ -49,8 +49,8 @@ public class Controleur {
         this.notifyAll();
     }
 
-    public synchronized void stopReading(Object o) {
-        this.readers.remove(o);
+    public synchronized void stopReading(Lecteur reader) {
+        this.readers.remove(reader);
         this.notifyAll();
     }
 }
