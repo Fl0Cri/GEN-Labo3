@@ -1,46 +1,35 @@
 package ch.heig.pl.banque;
 
-import java.util.LinkedList;
 import java.util.Random;
 
-public class Transferts implements Runnable
+public class Transferts extends Thread
 {
     private Banque banque;
     private Random randomGenerator;
+    private int nombre;
 
-    public static void executeRandom(Banque banque, int nombre)
-    {
-        System.out.println("############################## Starting transfers");
-
-        // Démare les transferts
-        for (int i = 0; i < nombre; i++)
-        {
-            new Thread(new Transferts(banque)).start();
-        }
-
-        System.out.println("############################## Finished");
-    }
-
-    private Transferts(Banque banque)
+    public Transferts(Banque banque, int nombre)
     {
         this.banque = banque;
+        this.nombre = nombre;
         randomGenerator = new Random();
     }
 
     public void run()
     {
         int nbComptes = banque.getNbComptes();
-        int crediteur = randomGenerator.nextInt(nbComptes);
-        int debiteur = randomGenerator.nextInt(nbComptes - 1);
-        debiteur = debiteur >= crediteur ? debiteur + 1 : debiteur;
-        int montant = randomGenerator.nextInt(4) + 1;
+        int crediteur;
+        int debiteur;
+        int montant;
 
-        try {
-            Thread.sleep(randomGenerator.nextInt(10));
-        } catch (InterruptedException ignored) {
+        for (int i = 0; i < this.nombre; i++)
+        {
+            crediteur = randomGenerator.nextInt(nbComptes);
+            debiteur = randomGenerator.nextInt(nbComptes - 1);
+            debiteur = debiteur >= crediteur ? debiteur + 1 : debiteur;
+            montant = randomGenerator.nextInt(4) + 1;
+
+            banque.transfert(debiteur, crediteur, montant);
         }
-
-        System.out.println("Transferring " + montant + " from " + crediteur + " to " + debiteur);
-        banque.transfert(debiteur, crediteur, montant);
     }
 }

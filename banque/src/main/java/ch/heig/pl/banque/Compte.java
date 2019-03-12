@@ -19,17 +19,7 @@ public class Compte {
 
     public boolean debit(int valeur) {
         if (montant - valeur >= 0) {
-            //this.montant -= valeur;
-
-            int amount = this.montant;
-
-            try {
-                Thread.sleep(2);
-            } catch (InterruptedException ignored) {
-            }
-
-            this.montant = amount - valeur;
-
+            this.montant -= valeur;
             return true;
         } else {
             return false;
@@ -37,18 +27,7 @@ public class Compte {
     }
 
     public void credit(int valeur) {
-        //this.montant += valeur;
-
-        int amount = this.montant;
-
-        try {
-            Thread.sleep(2);
-        } catch (InterruptedException ignored) {
-
-        }
-
-        this.montant = amount + valeur;
-        System.out.println("Credited " + valeur + " to " + numero);
+        this.montant += valeur;
     }
 
 }
